@@ -1,0 +1,20 @@
+{
+  "name": "isy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ISY CRM - Enterprise CRM built with Clean Architecture",
+  "scripts": {
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev": "pnpm --parallel --filter backend --filter frontend dev",
+    "build": "pnpm --filter backend build && pnpm --filter frontend build",
+    "typecheck": "pnpm --filter backend typecheck && pnpm --filter frontend typecheck",
+    "test:backend": "pnpm --filter backend test:apis",
+    "test:frontend": "pnpm --filter frontend test",
+    "test": "pnpm --filter backend test:apis && pnpm --filter frontend test"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
