@@ -84,8 +84,8 @@ await registerRoutes(fastify);
 // ─── Export for Vercel ─────────────────────
 export default fastify;
 
-// ─── Start Only if Run Directly ─────────────
-if (process.env.NODE_ENV !== 'production' || process.env.VITE_VERCEL_ENV === undefined) {
+// ─── Start Only if Run Directly (not on Vercel) ─────────────
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   const PORT = Number(process.env.PORT ?? 3001);
   const HOST = process.env.HOST ?? '0.0.0.0';
 

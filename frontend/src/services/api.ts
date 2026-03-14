@@ -5,7 +5,7 @@ import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 // Axios Instance — with auth interceptors
 // ============================================================
 const api: AxiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',

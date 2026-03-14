@@ -16,18 +16,20 @@ ISY CRM is a high-performance, enterprise-grade Customer Relationship Management
 
 ### Frontend
 - **Framework**: React 18 + Vite
-- **Styling**: Vanilla CSS with **BEM Methodology**
-- **State Management**: Tanstack Query (React Query)
-- **Routing**: React Router v6
-- **API Client**: Axios with automatic token injection
-- **Visuals**: Recharts (Graphs), DND Kit (Pipeline)
+- **Styling**: **TailwindCSS v4** (Theme Tokens) + **Vanilla CSS** (Component Utilities)
+- **Design System**: **Liquid Glass** (Glassmorphism, Bokeh effects, Spring animations)
+- **Architecture**: **Atomic Design** (Atoms, Molecules, Organisms, Templates, Pages)
+- **State Management**: TanStack Query (React Query)
+- **Routing**: React Router v7 (Data Router)
+- **Visuals**: Recharts (Analytics), Lucide React (Icons)
 
 ### Backend
 - **Framework**: Fastify (Node.js)
+- **Architecture**: **Clean Architecture** (Decoupled Domain, Application, and Infrastructure layers)
 - **Database**: PostgreSQL (via Supabase)
-- **Auth**: Supabase Auth with JWT tokens
-- **Validation**: Zod (Schema-first)
-- **Architecture**: Clean Architecture (Entities, UseCases, Repositories)
+- **Auth**: Supabase Auth with JWT & RLS
+- **Validation**: Zod (Type-safe schema validation)
+- **Communication**: RESTful API with Axios Interceptors
 
 ---
 
@@ -221,37 +223,70 @@ Initial seed data is automatically applied from: `supabase/seed.sql`
 
 ```
 isy/
-├── backend/                   # Node.js/Fastify backend server
+├── backend/                    # Fastify Backend (Clean Architecture)
 │   ├── src/
-│   │   ├── application/       # Business logic & use cases
-│   │   ├── core/              # Shared utilities, middleware, errors
-│   │   ├── domain/            # Domain entities & repository interfaces
-│   │   ├── infrastructure/    # Database implementations
-│   │   └── interfaces/        # HTTP routes & controllers
-│   ├── api/                   # Serverless function endpoint
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── .env                   # Local configuration
+│   │   ├── domain/             # Entities & Repository Interfaces
+│   │   ├── application/        # Use Cases & Service Layer
+│   │   ├── infrastructure/     # Supabase & Persistence Implementations
+│   │   ├── interfaces/         # HTTP Handlers (Fastify Routes)
+│   │   ├── core/               # Shared logic, Exceptions, Middleware
+│   │   └── server/             # App initialization & Plugin registration
+│   └── api/                    # Vercel Serverless Entrypoint
 │
-├── frontend/                  # React + Vite frontend application
+├── frontend/                   # React Frontend (Atomic Design)
 │   ├── src/
-│   │   ├── app/               # App layout, providers, router
-│   │   ├── modules/           # Feature modules (auth, accounts, etc.)
-│   │   ├── shared/            # Shared components, utilities, API client
-│   │   └── assets/            # Static assets
-│   ├── public/                # Static files
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── .env                   # Local configuration
+│   │   ├── atoms/              # Smallest UI units (Buttons, Inputs)
+│   │   ├── molecules/          # Combinations of atoms (FormGroups, SearchBars)
+│   │   ├── organisms/          # Complex UI components (Sidebar, Tables, Charts)
+│   │   ├── templates/          # Layout structures (DashboardLayout, AuthLayout)
+│   │   ├── pages/              # High-level views (Pipeline, Accounts, CRM)
+│   │   ├── services/           # API Client & Query Hooks
+│   │   ├── types/              # TypeScript Interfaces & Enums
+│   │   └── index.css           # Liquid Glass Design System (Tailwind v4)
 │
-├── supabase/                  # Supabase configuration & migrations
-│   ├── migrations/            # Database schema migrations
-│   └── seed.sql               # Initial seed data
+├── supabase/                   # Database & Cloud Config
+│   ├── migrations/             # Incremental Schema Migrations
+│   └── seed.sql                # Rich Demo Data for Testing
 │
-├── pnpm-workspace.yaml        # Monorepo configuration
-├── README.md                  # This file
-└── pnpm-lock.yaml             # Dependency lock file
+├── pnpm-workspace.yaml         # Monorepo Orchestration
+└── package.json                # Root Scripts
 ```
+
+---
+
+## 🏗️ Implementation Deep Dive
+
+ISY CRM is engineered with a focus on code maintainability, type safety, and premium user experience.
+
+### 1. Backend: Clean Architecture
+The backend follows Uncle Bob's Clean Architecture, ensuring the business logic remains independent of the database and web framework.
+
+- **Domain Layer**: Contains pure business entities (e.g., `Account`, `Lead`) and Repository interfaces. It has zero dependencies on frameworks.
+- **Application Layer**: Orchestrates use cases (e.g., `CreateOpportunity`, `ConvertLead`). This is where the core business rules live.
+- **Infrastructure Layer**: Implements technical details. We use `SupabaseRepository` implementations to interact with PostgreSQL via the Supabase client.
+- **Interface Layer**: Fastify routes and controllers. Handles HTTP requests, parses inputs using **Zod schemas**, and maps results to appropriate status codes.
+
+### 2. Frontend: Atomic Design & Liquid Glass
+The UI implementation prioritizes visual excellence and modularity.
+
+- **Atomic Design**: Components are broken down into five levels. This ensures high reusability and a "Lego-like" developer experience.
+- **Design System (Liquid Glass)**: 
+  - Uses **TailwindCSS v4**'s new `@theme` configuration for semantic tokens (colors, shadows, spacing).
+  - Implements complex **Glassmorphism** using `backdrop-filter`, `radial-gradients` for mesh backgrounds, and sophisticated `box-shadow` hierarchies.
+  - Supports **Dark Mode** natively via CSS custom properties defined in the `@theme` block.
+- **Unified Relationship Management**: A specialized pattern used in the Relationships module to manage Account, Contact, and Lead entities within a single, cohesive interface. It uses URL-synced tab state and generic modal handlers to streamline CRUD operations across different CRM entities.
+- **Data Flow**: 
+  - **TanStack Query** handles all server state, providing automatic caching, revalidation, and loading states.
+  - **Axios Interceptors** automatically attach authentication tokens to every request.
+
+### 3. Database: Supabase & RLS
+We leverage Supabase's powerful PostgreSQL features to ensure data integrity and security.
+
+- **Migrations**: Every schema change is version-controlled in `supabase/migrations`.
+- **Row Level Security (RLS)**: Crucial for multi-tenant security. Policies (e.g., `user_id = auth.uid()`) are applied at the database level, ensuring users can only access their own CRM data even if the application layer has a bug.
+- **Triggers**: Automated tasks (like updating `updated_at` timestamps) are handled by PostgreSQL triggers to guarantee consistency.
+
+---
 
 ---
 
@@ -772,6 +807,37 @@ ls -lh dist/
    - Build using `pnpm run build`
    - Set environment variables: `VITE_API_URL` (your backend URL)
    - Deploy to your hosting platform
+
+---
+
+## 🚀 Production Launch Checklist
+
+Follow these steps for a successful cloud deployment:
+
+### 1. Supabase Cloud (Database & Auth)
+- [ ] Create a new project on [Supabase.com](https://supabase.com).
+- [ ] Link your local CLI to the cloud project: `supabase link --project-ref your-ref`.
+- [ ] Push schema: `supabase db push`.
+- [ ] (Optional) Seed demo data: `psql -h db.your-ref.supabase.co -U postgres -f supabase/seed.sql`.
+- [ ] Set "Site URL" in Auth Settings to your Vercel frontend URL.
+
+### 2. Vercel Backend (API)
+- [ ] Create a new project, select the `backend` directory as root.
+- [ ] Set the following environment variables:
+  - `SUPABASE_URL`: Your project URL.
+  - `SUPABASE_ANON_KEY`: Public anon key.
+  - `SUPABASE_SERVICE_ROLE`: **Private** service role key.
+  - `CORS_ORIGIN`: Your frontend URL (e.g., `https://isy-crm.vercel.app`).
+  - `NODE_ENV`: `production`.
+- [ ] Deploy and copy the provided URL.
+
+### 3. Vercel Frontend (UI)
+- [ ] Create a new project, select the `frontend` directory as root.
+- [ ] Set environment variables:
+  - `VITE_API_URL`: Your backend URL (e.g., `https://isy-backend.vercel.app/api`).
+  - `VITE_SUPABASE_URL`: Your Supabase URL.
+  - `VITE_SUPABASE_ANON_KEY`: Your Supabase anon key.
+- [ ] Deploy and verify the connection in the network tab.
 
 ---
 
