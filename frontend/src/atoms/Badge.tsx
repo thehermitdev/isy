@@ -30,7 +30,7 @@ export function Badge({ variant = 'gray', children, className, dot }: BadgeProps
     <span className={cn('badge', variantMap[variant], className)}>
       {dot && (
         <span
-          className={cn('inline-block w-1.5 h-1.5 rounded-full flex-shrink-0', dotColorMap[variant])}
+          className={cn('inline-block w-1.5 h-1.5 rounded-full shrink-0', dotColorMap[variant])}
         />
       )}
       {children}
